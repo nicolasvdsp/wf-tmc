@@ -27,6 +27,7 @@ import bunnyBackground from './features/videos/bunny-background';
 import bunnyLightbox from './features/videos/bunny-lightbox';
 import hubspot from './features/hubspot';
 import pushmotionMarquee from './features/pushmotion-marquee';
+import swiperSlider from './features/swiper';
 
 // ============================================
 // START
@@ -65,6 +66,7 @@ function runApp() {
     ACTIVE_FEATURES.bunnyLightbox && bunnyLightbox();
     ACTIVE_FEATURES.hubspot && hubspot();
     ACTIVE_FEATURES.pushmotionMarquee && pushmotionMarquee();
+    ACTIVE_FEATURES.swiperSlider && swiperSlider();
   }
 
   if (document.readyState === 'loading') {

@@ -13,6 +13,7 @@ export const INCLUDE_FEATURES = {
   breakpoints: true,
   utilities: true,
   marquee: true,
+  swiperSlider: true,
   faq: true,
 
   // Enable per project as needed
