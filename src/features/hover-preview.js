@@ -1,3 +1,5 @@
+import { initOrbitTiles, setOrbitTilesPlaying } from './orbit-tiles';
+
 /*
  * Hover preview
  *
@@ -28,15 +30,25 @@
  *         <span>Brand Foundation</span>
  *         <p data-text="description">…</p>
  *         <a data-link="cases" href="/cases">View cases</a>
- *         <img data-image="image" alt="Enoki badge" src="…">
+ *         <div data-orbit-tiles-source>
+ *           <!-- Webflow multi-image list. Each nested item is one image. -->
+ *           <img alt="" src="…">
+ *           <img alt="" src="…">
+ *         </div>
  *       </li>
  *     </ul>
  *
  *     <div data-hover-preview-panel>
  *       <div data-hover-preview-detail>
+ *         <div data-orbit-tiles-init>
+ *           <div data-orbit-tiles-collection>
+ *             <div data-orbit-tiles-list>
+ *               <div data-orbit-tiles-item><img alt=""></div>
+ *             </div>
+ *           </div>
+ *         </div>
  *         <p data-text="description"></p>
  *         <a data-link="cases">View cases</a>
- *         <img data-image="image" alt="">
  *       </div>
  *     </div>
  *   </div>
@@ -108,14 +120,26 @@ function setupHoverPreview(component) {
     detail.inert = true;
     populateElement(detail, data[i]);
     labelPreviewLinks(detail, serviceName);
+    detail._orbitImages = orbitSourceImages(item);
+    const orbit = detail.querySelector('[data-orbit-tiles-init]');
+    if (orbit) applyOrbitImages(orbit, detail._orbitImages);
   });
 
-  // One link stays put, including a .button-group around it. Descriptions
-  // stack behind it and swap on their own. The group has to move with the
-  // link: the copy area is clipped to the description height.
+  // The Designer padding lives on .services_preview-content, around the
+  // description and the button. The orbit stays a direct child of the panel
+  // so it can reach the edges.
+  const content = document.createElement('div');
+  content.setAttribute('data-hover-preview-content', '');
+  const contentClasses = ['services_preview-content', 'u-vflex-left-top', 'u-gap-smedium'];
+  details.forEach((detail) => {
+    contentClasses.forEach((className) => detail.classList.remove(className));
+  });
+  content.classList.add(...contentClasses);
+  stack.appendChild(content);
+
   const copy = document.createElement('div');
   copy.setAttribute('data-hover-preview-copy', '');
-  stack.appendChild(copy);
+  content.appendChild(copy);
   details.forEach((detail) => copy.appendChild(detail));
 
   let stableButton = null;
@@ -126,7 +150,7 @@ function setupHoverPreview(component) {
     stableButton.hidden = false;
     stableButton.removeAttribute('id');
     stableButton.setAttribute('data-hover-preview-button', '');
-    stack.appendChild(stableButton);
+    content.appendChild(stableButton);
     panel._hoverButton = stableButton;
     details.forEach((detail) => {
       detail.querySelectorAll('[data-link]').forEach((el) => {
@@ -135,8 +159,6 @@ function setupHoverPreview(component) {
         else el.hidden = true;
       });
     });
-    const gap = getComputedStyle(details[0]).rowGap;
-    if (gap && gap !== 'normal') stableButton.style.marginTop = gap;
   }
 
   const gsap = window.gsap;
@@ -246,6 +268,7 @@ function setupHoverPreview(component) {
     if (!detail) return;
     visibleIndex = activeIndex;
     gsap.set(detail, { autoAlpha: 1 });
+    syncOrbits(detail);
 
     const desc = detail.querySelector('[data-text="description"]');
     contentTl = gsap.timeline({
@@ -276,6 +299,7 @@ function setupHoverPreview(component) {
     visibleIndex = index;
     syncButton(toDetail);
     holdButton();
+    syncOrbits(toDetail);
 
     const out = lineTargets(fromDetail);
     const incoming = lineTargets(toDetail);
@@ -344,7 +368,37 @@ function setupHoverPreview(component) {
   }
 
   function descriptionHeight(detail) {
+    const orbit = detail.querySelector('[data-orbit-tiles-init]');
+    if (orbit && !orbit.hidden) return detail.offsetHeight;
     return detail.querySelector('[data-text="description"]')?.offsetHeight || 0;
+  }
+
+  function syncOrbits(active) {
+    const playing = !!(active && !reducedMotion());
+    const shared = sharedOrbit();
+    if (shared) {
+      if (active) showSharedOrbit(shared, active);
+      setOrbitTilesPlaying(shared, playing);
+      return;
+    }
+
+    details.forEach((detail) => {
+      const orbit = detail.querySelector('[data-orbit-tiles-init]');
+      setOrbitTilesPlaying(orbit, playing && detail === active);
+    });
+  }
+
+  function sharedOrbit() {
+    return [...panel.querySelectorAll('[data-orbit-tiles-init]')].find((orbit) => (
+      !orbit.closest('[data-hover-preview-detail]')
+    ));
+  }
+
+  function showSharedOrbit(orbit, detail) {
+    const images = detail._orbitImages || [];
+    const signature = orbitSignature(images);
+    if (orbit._orbitSignature === signature) return;
+    applyOrbitImages(orbit, images);
   }
 
   function setCopyHeight(detail) {
@@ -451,6 +505,7 @@ function setupHoverPreview(component) {
     activeIndex = -1;
     if (items.length) items[Math.max(previous, 0)].tabIndex = 0;
     if (gsap) gsap.set(panel, { autoAlpha: 0, scale: SCALE });
+    syncOrbits(null);
     panel.setAttribute('aria-hidden', 'true');
   }
 
@@ -471,6 +526,7 @@ function setupHoverPreview(component) {
       setCopyHeight(detail);
       const button = buttonOf(detail);
       if (gsap && button) gsap.set(button, { autoAlpha: 0, y: 16 });
+      syncOrbits(detail);
     });
   }
 
@@ -492,6 +548,7 @@ function setupHoverPreview(component) {
       setCopyHeight(detail);
       const button = buttonOf(detail);
       if (gsap && button) gsap.set(button, { autoAlpha: 1, y: 0 });
+      syncOrbits(detail);
     });
   }
 
@@ -625,13 +682,21 @@ function setSelected(item, detail, selected) {
 }
 
 function findPreviewItems(source) {
-  const dynItems = source.querySelectorAll('.w-dyn-item');
-  if (dynItems.length) return [...dynItems];
+  // A multi-image field is a collection list inside the service item, so its
+  // .w-dyn-item nodes are images, not extra services.
+  const dynItems = [...source.querySelectorAll('.w-dyn-item')].filter((item) => (
+    !item.parentElement?.closest('.w-dyn-item')
+  ));
+  if (dynItems.length) return dynItems;
 
-  const marked = source.querySelectorAll('[data-hover-preview-item]');
-  if (marked.length) return [...marked];
+  const marked = [...source.querySelectorAll('[data-hover-preview-item]')].filter((item) => (
+    !item.parentElement?.closest('[data-hover-preview-item]')
+  ));
+  if (marked.length) return marked;
 
-  return [...source.querySelectorAll('li')];
+  return [...source.querySelectorAll('li')].filter((item) => (
+    !item.parentElement?.closest('li')
+  ));
 }
 
 function nameTablist(list, source, component) {
@@ -647,14 +712,73 @@ function nameTablist(list, source, component) {
 
 function visibleName(item) {
   const clone = item.cloneNode(true);
-  clone.querySelectorAll('[data-text], [data-image], [data-link]').forEach((el) => el.remove());
+  clone.querySelectorAll('[data-text], [data-image], [data-link], [data-orbit-tiles-source]').forEach((el) => el.remove());
   return clone.textContent.replace(/\s+/g, ' ').trim();
 }
 
 function hideSourceFields(item) {
-  item.querySelectorAll('[data-text], [data-image], [data-link]').forEach((el) => {
+  item.querySelectorAll('[data-text], [data-image], [data-link], [data-orbit-tiles-source]').forEach((el) => {
     if (el !== item) el.hidden = true;
   });
+}
+
+function orbitSourceImages(item) {
+  const images = [];
+  item.querySelectorAll('[data-orbit-tiles-source]').forEach((source) => {
+    if (source.tagName === 'IMG') images.push(source);
+    else images.push(...source.querySelectorAll('img'));
+  });
+
+  return images.filter((img) => (
+    !img.closest('.w-dyn-empty') && (img.getAttribute('src') || img.getAttribute('srcset'))
+  ));
+}
+
+function orbitSignature(images) {
+  return images.map((img) => img.getAttribute('src') || img.getAttribute('srcset') || '').join('|');
+}
+
+function applyOrbitImages(orbit, images) {
+  const list = orbit.querySelector('[data-orbit-tiles-list]');
+  const existing = list ? [...list.querySelectorAll(':scope > [data-orbit-tiles-item]')] : [];
+  const template = existing[0];
+  if (!list || !template) return;
+
+  orbit._orbitTiles?.destroy?.();
+
+  if (!images.length) {
+    orbit.hidden = true;
+    orbit._orbitSignature = '';
+    return;
+  }
+
+  orbit.hidden = false;
+  existing.slice(1).forEach((tile) => tile.remove());
+  const anchor = template.nextSibling;
+  images.forEach((img) => {
+    const tile = template.cloneNode(true);
+    const target = tile.tagName === 'IMG' ? tile : tile.querySelector('img');
+    if (target) copyImage(target, img);
+    list.insertBefore(tile, anchor);
+  });
+  template.remove();
+  orbit._orbitSignature = orbitSignature(images);
+  initOrbitTiles(orbit);
+}
+
+function copyImage(target, img) {
+  const src = img.getAttribute('src');
+  if (src) target.src = src;
+  target.alt = img.getAttribute('alt') || '';
+  target.loading = 'eager';
+
+  const srcset = img.getAttribute('srcset');
+  if (srcset) target.setAttribute('srcset', srcset);
+  else target.removeAttribute('srcset');
+
+  const sizes = img.getAttribute('sizes');
+  if (sizes) target.setAttribute('sizes', sizes);
+  else target.removeAttribute('sizes');
 }
 
 function labelPreviewLinks(detail, serviceName) {
@@ -782,6 +906,15 @@ function populateElement(container, data) {
 function hoverPreview() {
   document.addEventListener('barba:afterEnter', (e) => {
     initHoverPreview(e.detail.container);
+  });
+
+  // The orbit loop repeats forever. Stop it with the page that owns it,
+  // before Barba removes that container.
+  window.barba?.hooks?.beforeLeave?.((data) => {
+    const root = data.current?.container || document;
+    root.querySelectorAll('[data-orbit-tiles-init]').forEach((orbit) => {
+      orbit._orbitTiles?.destroy?.();
+    });
   });
 }
 

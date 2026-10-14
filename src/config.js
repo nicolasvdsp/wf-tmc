@@ -16,6 +16,7 @@ export const INCLUDE_FEATURES = {
   swiperSlider: true,
   faq: true,
   hoverPreview: true,
+  orbitTiles: true,
 
   // Enable per project as needed
   glossary: false,

@@ -3,6 +3,10 @@
   display: none !important;
 }
 
+[data-hover-preview-source] [data-orbit-tiles-source] {
+  display: none !important;
+}
+
 [data-hover-preview-source] :is(.w-dyn-item, [data-hover-preview-item], li) {
   cursor: pointer;
 }
@@ -11,24 +15,44 @@
   transform-origin: center center;
 }
 
-// Descriptions share one cell. The link sits under that cell, so its
-// position follows the description height GSAP animates.
+// The script moves the description and the button out of the Designer order.
+// Padding stays on the content block. The orbit stays flush with the panel.
 [data-hover-preview-ready] [data-hover-preview-stack] {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   align-items: stretch;
+  height: 100%;
+  min-height: 0;
 }
 
-[data-hover-preview-ready] [data-hover-preview-button] {
-  align-self: flex-start;
-  width: auto;
+[data-hover-preview-ready] [data-hover-preview-content] {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  min-width: 0;
   max-width: 100%;
+}
+
+[data-hover-preview-ready] [data-orbit-tiles-init] {
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+}
+
+[data-hover-preview-detail] [hidden] {
+  display: none !important;
 }
 
 [data-hover-preview-ready] [data-hover-preview-copy] {
   display: grid;
   align-items: start;
+  width: 100%;
+  min-width: 0;
   min-height: 0;
   overflow: hidden;
 
@@ -38,4 +62,10 @@
     width: 100%;
     align-self: start;
   }
+}
+
+[data-hover-preview-ready] [data-hover-preview-button] {
+  align-self: flex-start;
+  width: auto;
+  max-width: 100%;
 }

@@ -29,6 +29,7 @@ import bunnyLightbox from './features/videos/bunny-lightbox';
 import hubspot from './features/hubspot';
 import pushmotionMarquee from './features/pushmotion-marquee';
 import swiperSlider from './features/swiper';
+import orbitTiles from './features/orbit-tiles';
 
 // ============================================
 // START
@@ -69,6 +70,7 @@ function runApp() {
     ACTIVE_FEATURES.hubspot && hubspot();
     ACTIVE_FEATURES.pushmotionMarquee && pushmotionMarquee();
     ACTIVE_FEATURES.swiperSlider && swiperSlider();
+    ACTIVE_FEATURES.orbitTiles && orbitTiles();
   }
 
   if (document.readyState === 'loading') {
