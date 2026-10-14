@@ -21,6 +21,7 @@ import faq from './features/faq';
 import utilities from './features/utilities';
 import services from './features/services';
 import testimonials from './features/testimonials';
+import hoverPreview from './features/hover-preview';
 import richtextFeatures from './features/richtext-features';
 import lucideIcons from './features/lucide-icons';
 import bunnyBackground from './features/videos/bunny-background';
@@ -60,6 +61,7 @@ function runApp() {
     ACTIVE_FEATURES.utilities && utilities();
     ACTIVE_FEATURES.services && services();
     ACTIVE_FEATURES.testimonials && testimonials();
+    ACTIVE_FEATURES.hoverPreview && hoverPreview();
     ACTIVE_FEATURES.richtextFeatures && richtextFeatures();
     ACTIVE_FEATURES.lucideIcons && lucideIcons();
     ACTIVE_FEATURES.bunnyBackground && bunnyBackground();

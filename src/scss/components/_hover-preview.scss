@@ -1,0 +1,41 @@
+// Binding attributes mark source fields. Never hide the row itself.
+[data-hover-preview-source] :is([data-text], [data-image], [data-link]):not(li):not(.w-dyn-item) {
+  display: none !important;
+}
+
+[data-hover-preview-source] :is(.w-dyn-item, [data-hover-preview-item], li) {
+  cursor: pointer;
+}
+
+[data-hover-preview-panel] {
+  transform-origin: center center;
+}
+
+// Descriptions share one cell. The link sits under that cell, so its
+// position follows the description height GSAP animates.
+[data-hover-preview-ready] [data-hover-preview-stack] {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+[data-hover-preview-ready] [data-hover-preview-button] {
+  align-self: flex-start;
+  width: auto;
+  max-width: 100%;
+}
+
+[data-hover-preview-ready] [data-hover-preview-copy] {
+  display: grid;
+  align-items: start;
+  min-height: 0;
+  overflow: hidden;
+
+  > [data-hover-preview-detail] {
+    position: relative;
+    grid-area: 1 / 1;
+    width: 100%;
+    align-self: start;
+  }
+}

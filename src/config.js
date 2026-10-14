@@ -8,13 +8,14 @@ export const INCLUDE_FEATURES = {
   scrollBehaviour: true,
 
   pageTransitions: true,
-  navbar: true,
+  navbar: false,
   customFeature: true,
   breakpoints: true,
   utilities: true,
   marquee: true,
   swiperSlider: true,
   faq: true,
+  hoverPreview: true,
 
   // Enable per project as needed
   glossary: false,
