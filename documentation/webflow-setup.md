@@ -25,7 +25,7 @@ If your project uses external libraries (GSAP, Three.js, etc.), add them in Webf
 Add this **after** the CDN scripts in the same Custom Code section:
 
 ```html
-<script src="https://MY-PROJECT.netlify.app/main.min.js"></script>
+<script src="https://wf-tmc.netlify.app/main.min.js"></script>
 ```
 
 That's it. No loader script, no inline code, no configuration needed in Webflow.
@@ -35,7 +35,7 @@ That's it. No loader script, no inline code, no configuration needed in Webflow.
 To selectively enable features, add attributes to the script tag:
 
 ```html
-<script src="https://MY-PROJECT.netlify.app/main.min.js" breakpoints glossary></script>
+<script src="https://wf-tmc.netlify.app/main.min.js" breakpoints glossary></script>
 ```
 
 If no attributes are provided, all features from `src/config.js` are loaded.
@@ -65,13 +65,15 @@ No manual toggles. No changes needed between development and production.
 
    ```html
    <!-- HTTP localhost (default) -->
-   <script defer src="https://MY-PROJECT.netlify.app/main.min.js" dev-mode></script>
+   <script defer src="https://wf-tmc.netlify.app/main.min.js" dev-mode></script>
 
    <!-- HTTPS localhost (Safari + https://*.webflow.io) -->
-   <script defer src="https://MY-PROJECT.netlify.app/main.min.js" dev-mode https-mode></script>
+   <script defer src="https://wf-tmc.netlify.app/main.min.js" dev-mode https-mode></script>
    ```
 
    With `https-mode`, the first load will require accepting the **self-signed certificate** — open `https://localhost:3012` once in the same browser, click through the warning, then reload the Webflow staging page.
+
+   Chrome also asks, once per staging origin, before a public site may reach `localhost`. If the console says permission was denied for the `loopback` address space, click the lock icon on the staging site → Site settings → allow **Apps on your device** (older Chrome: **Local network access**), then reload. Other projects already have that permission saved, so they do not show the prompt again.
 
 2. **Open your Webflow staging site** (`your-project.webflow.io`)
 
