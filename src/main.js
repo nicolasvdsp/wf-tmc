@@ -31,14 +31,6 @@ import pushmotionMarquee from './features/pushmotion-marquee';
 import swiperSlider from './features/swiper';
 import orbitTiles from './features/orbit-tiles';
 
-// ============================================
-// START
-// ============================================
-detectAndRun(runApp);
-
-// ============================================
-// BUNDLED APP
-// ============================================
 const APP_CSS_ATTR = 'data-tmc-app-css';
 
 function applyAppCss(css) {
@@ -56,6 +48,13 @@ if (import.meta.hot) {
     if (mod) applyAppCss(mod.default);
   });
 }
+
+// ============================================
+// START
+// ============================================
+// In dev mode the Netlify bundle has already set __LOADER_EXECUTED, so this
+// call runs runApp immediately. APP_CSS_ATTR must exist before that happens.
+detectAndRun(runApp);
 
 function runApp() {
   // Injected here, not at module scope, so the Netlify file does not apply its
