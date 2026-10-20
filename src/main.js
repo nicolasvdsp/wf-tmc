@@ -1,4 +1,4 @@
-import './scss/app.scss';
+import appCss from './scss/app.scss?inline';
 import { INCLUDE_FEATURES } from './config';
 import { detectAndRun } from './loader';
 
@@ -39,7 +39,29 @@ detectAndRun(runApp);
 // ============================================
 // BUNDLED APP
 // ============================================
+const APP_CSS_ATTR = 'data-tmc-app-css';
+
+function applyAppCss(css) {
+  let style = document.head.querySelector(`style[${APP_CSS_ATTR}]`);
+  if (!style) {
+    style = document.createElement('style');
+    style.setAttribute(APP_CSS_ATTR, '');
+    document.head.appendChild(style);
+  }
+  style.textContent = css;
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept('./scss/app.scss?inline', (mod) => {
+    if (mod) applyAppCss(mod.default);
+  });
+}
+
 function runApp() {
+  // Injected here, not at module scope, so the Netlify file does not apply its
+  // CSS before the loader decides to use the local dev server.
+  applyAppCss(appCss);
+
   const ACTIVE_FEATURES = getFeaturesFromScriptTag();
 
   function initFeatures() {
