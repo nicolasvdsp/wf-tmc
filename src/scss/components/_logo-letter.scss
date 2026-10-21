@@ -1,0 +1,44 @@
+.logo {
+  --unit: calc(100cqw / 1920);
+}
+
+/* Flat letter row on desktop — wrappers don't generate boxes */
+.logo_word {
+  display: contents;
+}
+
+.logo_letter+.logo_letter {
+  margin-left: calc(var(--unit) * -12);
+}
+
+/* Space between THE and MOTHERSHIP (words are no longer siblings) */
+.logo_word+.logo_word .logo_letter:first-child {
+  margin-left: calc(var(--unit) * 37);
+}
+
+/* Mobile: each word is a centered row; MOTHERSHIP spans full width */
+@media (max-width: 767px) {
+  .logo {
+    /* 10×155 letter − 9×12 overlap */
+    --unit: calc(100cqw / 1442);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    row-gap: calc(var(--unit) * 12);
+  }
+
+  .logo_word {
+    display: flex;
+  }
+
+  .logo_letter {
+    flex: 0 0 auto;
+    width: calc(var(--unit) * 155);
+    height: calc(var(--unit) * 155);
+  }
+
+  .logo_word+.logo_word .logo_letter:first-child {
+    margin-left: 0;
+  }
+}
