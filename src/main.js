@@ -30,6 +30,7 @@ import hubspot from './features/hubspot';
 import pushmotionMarquee from './features/pushmotion-marquee';
 import swiperSlider from './features/swiper';
 import orbitTiles from './features/orbit-tiles';
+import momentumHover from './features/momentum-hover';
 
 const APP_CSS_ATTR = 'data-tmc-app-css';
 
@@ -92,6 +93,7 @@ function runApp() {
     ACTIVE_FEATURES.pushmotionMarquee && pushmotionMarquee();
     ACTIVE_FEATURES.swiperSlider && swiperSlider();
     ACTIVE_FEATURES.orbitTiles && orbitTiles();
+    ACTIVE_FEATURES.momentumHover && momentumHover();
   }
 
   if (document.readyState === 'loading') {
