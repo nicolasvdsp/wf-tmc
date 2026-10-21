@@ -8,8 +8,10 @@ import { initOrbitTiles, setOrbitTilesPlaying } from './orbit-tiles';
  * stay hidden; hovering or focusing a row copies them into the preview.
  *
  * The preview starts closed. Entering a row opens it: the panel scales from
- * 0.75 to 1 from the center and fades in, then the description lines stagger
- * in, then the button fades up. Moving down the list staggers the current
+ * 0.75 to 1 from the left edge and fades in. The first row scales from the
+ * top-left, the last from the bottom-left, and the rows between from a point
+ * on that edge that matches their place in the list. Then the description
+ * lines stagger in, then the button fades up. Moving down the list staggers the current
  * description out through the bottom and the next one in from the top,
  * together. Moving up reverses that. The link updates in place; the button
  * only slides when the description gets taller or shorter. Leaving the preview
@@ -689,14 +691,21 @@ function createPreviewView({ component, panel, items, data, pointer, variant, id
     if (restore?.isConnected) restore.focus({ preventScroll: true });
   }
 
+  function scaleOrigin() {
+    const last = items.length - 1;
+    if (last <= 0) return '0% 0%';
+    const index = Math.min(Math.max(activeIndex, 0), last);
+    return `0% ${(index / last) * 100}%`;
+  }
+
   function panelClosed() {
     if (isMobile) return { yPercent: 25, autoAlpha: 0, scale: 1 };
-    return { yPercent: 0, scale: SCALE, autoAlpha: 0, transformOrigin: 'center center' };
+    return { yPercent: 0, scale: SCALE, autoAlpha: 0, transformOrigin: scaleOrigin() };
   }
 
   function panelOpen() {
     if (isMobile) return { yPercent: 0, autoAlpha: 1, scale: 1 };
-    return { yPercent: 0, scale: 1, autoAlpha: 1, transformOrigin: 'center center' };
+    return { yPercent: 0, scale: 1, autoAlpha: 1, transformOrigin: scaleOrigin() };
   }
 
   function engageModal(index) {
