@@ -31,6 +31,7 @@ import pushmotionMarquee from './features/pushmotion-marquee';
 import swiperSlider from './features/swiper';
 import orbitTiles from './features/orbit-tiles';
 import momentumHover from './features/momentum-hover';
+import gradientGlow from './features/gradient-glow';
 
 const APP_CSS_ATTR = 'data-tmc-app-css';
 
@@ -94,6 +95,7 @@ function runApp() {
     ACTIVE_FEATURES.swiperSlider && swiperSlider();
     ACTIVE_FEATURES.orbitTiles && orbitTiles();
     ACTIVE_FEATURES.momentumHover && momentumHover();
+    ACTIVE_FEATURES.gradientGlow && gradientGlow();
   }
 
   if (document.readyState === 'loading') {

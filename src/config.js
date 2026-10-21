@@ -18,6 +18,7 @@ export const INCLUDE_FEATURES = {
   hoverPreview: true,
   orbitTiles: true,
   momentumHover: true,
+  gradientGlow: true,
 
   // Enable per project as needed
   glossary: false,
