@@ -19,10 +19,10 @@ export const INCLUDE_FEATURES = {
   orbitTiles: true,
   momentumHover: true,
   gradientGlow: true,
+  textScramble: true,
 
   // Enable per project as needed
   glossary: false,
-  textScramble: false,
   textStagger: false,
   radialDivMarquee: false,
   vimeoBackground: false,
