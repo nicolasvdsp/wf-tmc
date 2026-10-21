@@ -17,7 +17,7 @@
 
 // The script moves the description and the button out of the Designer order.
 // Padding stays on the content block. The orbit stays flush with the panel.
-[data-hover-preview-ready] [data-hover-preview-stack] {
+[data-hover-preview-variant="desktop"][data-hover-preview-stack] {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
@@ -26,7 +26,7 @@
   min-height: 0;
 }
 
-[data-hover-preview-ready] [data-hover-preview-content] {
+[data-hover-preview-variant="desktop"] [data-hover-preview-content] {
   grid-column: 1;
   grid-row: 1;
   align-self: start;
@@ -34,7 +34,7 @@
   max-width: 100%;
 }
 
-[data-hover-preview-ready] [data-orbit-tiles-init] {
+[data-hover-preview-variant="desktop"] [data-orbit-tiles-init] {
   grid-column: 2;
   grid-row: 1;
   width: 100%;
@@ -48,7 +48,7 @@
   display: none !important;
 }
 
-[data-hover-preview-ready] [data-hover-preview-copy] {
+[data-hover-preview-variant="desktop"] [data-hover-preview-copy] {
   display: grid;
   align-items: start;
   width: 100%;
@@ -56,7 +56,7 @@
   min-height: 0;
   overflow: hidden;
 
-  > [data-hover-preview-detail] {
+  >[data-hover-preview-detail] {
     position: relative;
     grid-area: 1 / 1;
     width: 100%;
@@ -64,8 +64,53 @@
   }
 }
 
-[data-hover-preview-ready] [data-hover-preview-button] {
+[data-hover-preview-variant="desktop"] [data-hover-preview-button] {
   align-self: flex-start;
   width: auto;
   max-width: 100%;
+}
+
+// The open mobile preview stays at the size set in the Designer. A glass layer
+// blurs the page behind it. The nav stays sharp because it sits above this layer.
+[data-hover-preview-backdrop] {
+  position: fixed;
+  z-index: 40;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background-color: rgb(255 255 255 / 4%);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition:
+    opacity 0.4s ease,
+    backdrop-filter 0.4s ease,
+    -webkit-backdrop-filter 0.4s ease;
+}
+
+[data-hover-preview-backdrop][data-open] {
+  opacity: 1;
+  pointer-events: auto;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+// Each breakpoint has its own panel. Resize shows the other one; it does not
+// restyle the panel that was just on screen.
+@media (min-width: 768px) {
+  [data-hover-preview-variant="mobile"] {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-hover-preview-variant="desktop"] {
+    display: none !important;
+  }
+
+  // Cloned services sit on top of each other. Only the open one sizes the card.
+  [data-hover-preview-variant="mobile"]>[data-hover-preview-detail][aria-hidden="true"] {
+    position: absolute;
+    width: 100%;
+    pointer-events: none;
+  }
 }
