@@ -12,6 +12,8 @@ export default defineConfig({
   server: {
     host: 'localhost',
     port: 3012,
+    // Lets an iPhone load this dev server through a trycloudflare.com tunnel.
+    allowedHosts: ['.trycloudflare.com'],
     cors: true,
     https: useHttps,
     hmr: {
