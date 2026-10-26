@@ -45,6 +45,11 @@ function reducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+function isSafari() {
+  const ua = navigator.userAgent;
+  return /Safari/i.test(ua) && !/Chrome|Chromium|CriOS|FxiOS|Edg|OPR/i.test(ua);
+}
+
 function bindHover(root, gsap, cleanups) {
   const clampXY = gsap.utils.clamp(-1080, 1080);
   const clampRot = gsap.utils.clamp(-60, 60);
@@ -106,9 +111,42 @@ function bindHover(root, gsap, cleanups) {
   });
 }
 
+function lockLetterBoxes() {
+  // Letters are flex items with only a flex-basis, and the SVG is
+  // width="auto". iOS treats the glow mask as the SVG's minimum size,
+  // then refuses to shrink the letter, so MOTHERSHIP grows past the
+  // screen and the page snaps sideways. A definite width wins.
+  if (document.getElementById('momentum-letter-lock')) return;
+  const style = document.createElement('style');
+  style.id = 'momentum-letter-lock';
+  style.textContent = `
+    .logo_letter {
+      width: calc(var(--unit) * 155);
+      height: calc(var(--unit) * 155);
+      min-width: 0;
+      min-height: 0;
+    }
+    .logo_letter > svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function bindScroll(root, gsap, cleanups) {
-  const targets = [...root.querySelectorAll('[data-momentum-hover-target]')];
+  // Move the letter wrapper, not the SVG. A transform on the SVG makes
+  // iOS size the letter from the glow mask.
+  const targets = [...new Set(
+    [...root.querySelectorAll('[data-momentum-hover-target]')].map((node) => (
+      node.closest('[data-momentum-hover-element]') || node
+    ))
+  )];
   if (!targets.length) return;
+
+  lockLetterBoxes();
 
   targets.forEach((target) => {
     if (target._momentumScrollMul == null) {
@@ -180,7 +218,12 @@ export function initMomentumHover(container) {
     if (root._momentumHover) return;
 
     const cleanups = [];
-    const wantsScroll = root.hasAttribute('data-momentum-scroll-area') && !reducedMotion();
+    const hasScroll = root.hasAttribute('data-momentum-scroll-area');
+    // Safari drops frames through the whole coast of a flick. Skip the
+    // scroll bounce there. The letter lock still runs so the logo can't
+    // grow past the screen.
+    if (hasScroll) lockLetterBoxes();
+    const wantsScroll = hasScroll && !reducedMotion() && !isSafari();
 
     if (canHover && window.InertiaPlugin) bindHover(root, gsap, cleanups);
     if (wantsScroll) bindScroll(root, gsap, cleanups);
@@ -189,7 +232,7 @@ export function initMomentumHover(container) {
     root._momentumHover = {
       destroy() {
         cleanups.forEach((cleanup) => cleanup());
-        root.querySelectorAll('[data-momentum-hover-target]').forEach((target) => {
+        root.querySelectorAll('[data-momentum-hover-target], [data-momentum-hover-element]').forEach((target) => {
           gsap.killTweensOf(target);
         });
         delete root._momentumHover;
