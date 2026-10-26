@@ -142,12 +142,81 @@ function initAnalogClock(container) {
   });
 }
 
+let emojiAnimationRunning = false;
+
+function initEmojiRain(emojiTypes, emojiContainer) {
+  if (emojiAnimationRunning) return;
+
+  emojiAnimationRunning = true;
+
+  const emojiContainerHeight = emojiContainer.offsetHeight;
+  const emojiQuantity = 20;
+
+  const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+  const createEmojiElement = () => {
+    const emojiScale = Math.random() * 0.6 + 0.4;
+    const emojiRotate = getRandomInt(1, 5);
+    const emojiDelay = 0.001 * getRandomInt(0, 1250);
+    const emojiSpeed = getRandomInt(800, 1200) * 0.001;
+    const emojiPosition = `${getRandomInt(0, 10)}0%`;
+    const emojiClass = `single-rain-emoji-image-${emojiTypes[Math.floor(Math.random() * emojiTypes.length)]}`;
+
+    const singleEmoji = document.createElement("div");
+    singleEmoji.className = "single-rain-emoji append";
+    singleEmoji.style.left = emojiPosition;
+
+    const singleEmojiChild = document.createElement("div");
+    singleEmojiChild.className = emojiClass;
+    singleEmoji.appendChild(singleEmojiChild);
+
+    gsap.fromTo(
+      singleEmoji,
+      { y: emojiContainerHeight, xPercent: -50, rotate: 0.001, scale: emojiScale },
+      { y: "-100%", xPercent: -50, rotate: 0.001, delay: emojiDelay, ease: "Power1.easeIn", duration: emojiSpeed }
+    );
+
+    gsap.fromTo(
+      singleEmojiChild,
+      { xPercent: -25, rotate: emojiRotate },
+      { xPercent: 25, rotate: -emojiRotate, ease: "Power1.easeInOut", delay: emojiDelay, duration: 0.8, repeat: -1, yoyo: true }
+    );
+
+    emojiContainer.appendChild(singleEmoji);
+  };
+
+  Array.from({ length: emojiQuantity }).forEach(createEmojiElement);
+
+  setTimeout(() => {
+    emojiContainer.querySelectorAll(".single-rain-emoji.append").forEach(el => el.remove());
+    emojiAnimationRunning = false;
+  }, 2750);
+}
+
+function initEmojiRainActions(container) {
+  container = container || document;
+  container.querySelectorAll("[data-emoji-rain-type-1]").forEach(trigger => {
+    trigger.addEventListener("click", () => {
+      const type1 = trigger.getAttribute("data-emoji-rain-type-1");
+      const type2 = trigger.getAttribute("data-emoji-rain-type-2") || type1;
+      const emojiContainer = document.querySelector("[data-emoji-rain-container]");
+
+      if (!emojiContainer) {
+        console.warn("No emoji rain container found with [data-emoji-rain-container]");
+        return;
+      }
+
+      initEmojiRain([type1, type2], emojiContainer);
+    });
+  });
+}
 
 function microInteractions() {
   document.addEventListener('barba:pageVisible', (e) => {
     dragJoystick(e.detail.container);
     alianInteraction(e.detail.container);
     initAnalogClock(e.detail.container);
+    initEmojiRainActions(e.detail.container);
   });
 }
 
