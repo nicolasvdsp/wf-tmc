@@ -21,6 +21,7 @@ export const INCLUDE_FEATURES = {
   gradientGlow: true,
   textScramble: true,
   openingHours: true,
+  microInteractions: true,
 
   // Enable per project as needed
   glossary: false,
@@ -28,7 +29,6 @@ export const INCLUDE_FEATURES = {
   radialDivMarquee: false,
   vimeoBackground: false,
   parallax: false,
-  microInteractions: false,
   vimeoAdvanced: false,
   services: false,
   testimonials: false,
