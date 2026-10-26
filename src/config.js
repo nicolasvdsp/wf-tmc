@@ -20,6 +20,7 @@ export const INCLUDE_FEATURES = {
   momentumHover: true,
   gradientGlow: true,
   textScramble: true,
+  openingHours: true,
 
   // Enable per project as needed
   glossary: false,
