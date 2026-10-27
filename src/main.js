@@ -33,6 +33,7 @@ import orbitTiles from './features/orbit-tiles';
 import momentumHover from './features/momentum-hover';
 import gradientGlow from './features/gradient-glow';
 import openingHours from './features/openinghours';
+import cursorMarquee from './features/cursor-marquee';
 
 const APP_CSS_ATTR = 'data-tmc-app-css';
 
@@ -98,6 +99,7 @@ function runApp() {
     ACTIVE_FEATURES.momentumHover && momentumHover();
     ACTIVE_FEATURES.gradientGlow && gradientGlow();
     ACTIVE_FEATURES.openingHours && openingHours();
+    ACTIVE_FEATURES.cursorMarquee && cursorMarquee();
   }
 
   if (document.readyState === 'loading') {

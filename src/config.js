@@ -22,6 +22,7 @@ export const INCLUDE_FEATURES = {
   textScramble: true,
   openingHours: true,
   microInteractions: true,
+  cursorMarquee: true,
 
   // Enable per project as needed
   glossary: false,
